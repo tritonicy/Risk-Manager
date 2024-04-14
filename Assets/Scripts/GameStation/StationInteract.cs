@@ -7,9 +7,6 @@ public class StationInteract : MonoBehaviour
 {
     private PolygonCollider2D polygonCollider2D;
     private CameraManagement cameraManagement;
-    [SerializeField] Camera mainCam;
-    [SerializeField] Camera TetrisCam;
-
     private void Start() {
         polygonCollider2D = GetComponent<PolygonCollider2D>();
         polygonCollider2D.isTrigger = true;
