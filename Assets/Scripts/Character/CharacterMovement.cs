@@ -8,19 +8,17 @@ public class CharacterMovement : MonoBehaviour
 {
     public PlayerInputSystem playerInputSystem;
     private Rigidbody2D rb;
-    [SerializeField] Camera mainCam;
     [SerializeField] float walkSpeed = 2f;
-    [SerializeField] float jumpSpeed = 40f;
+    [SerializeField] float jumpSpeed = 2f;
     private Vector2 moveDirection;
     private bool isTouchingFloor = false;
-    [SerializeField] float leftRoomGravity = 15f;
+    [SerializeField] float leftRoomGravity = 1f;
     private CameraManagement cameraManagement;
 
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
         cameraManagement = FindObjectOfType<CameraManagement>();
-        
-
+    
     }
     private void Awake() {
         playerInputSystem = new PlayerInputSystem();
@@ -32,9 +30,9 @@ public class CharacterMovement : MonoBehaviour
         }
         if (cameraManagement.FindActiveCamera().transform.position.x < 5f) {
             rb.gravityScale = leftRoomGravity;
-            rb.velocity = new Vector2(moveDirection.x * walkSpeed,0f);
+            rb.velocity = new Vector2(moveDirection.x * walkSpeed, rb.velocity.y);
             if (isTouchingFloor) {
-                rb.AddForce(new Vector2(0f, moveDirection.y * jumpSpeed),ForceMode2D.Impulse);
+                rb.velocity = new Vector2(rb.velocity.x, moveDirection.y * jumpSpeed);
             }
         }
         else {
