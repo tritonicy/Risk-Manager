@@ -15,10 +15,12 @@ public struct TetrominoData
     public Tetromino tetromino;
     public Vector2Int[] cells {get; private set;}
     public Vector2Int[,] wallKicks {get; private set;}
+    public float[] rotation {get; private set;}
 
 
     public void Initalize () {
         cells = Data.Cells[tetromino];
         wallKicks = Data.WallKicks[tetromino];
+        rotation = Data.RotationMatrix;
     }
 }
