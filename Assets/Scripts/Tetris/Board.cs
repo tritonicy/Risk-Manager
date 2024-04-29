@@ -44,7 +44,7 @@ public class Board : MonoBehaviour
         TetrominoData pieceData = tetrominoData[random];
 
         piece.Initalize(this,initialPos,pieceData);
-        //ghostPiece.Initalize(piece, this);
+        ghostPiece.Initalize(piece, this);
         Set(piece);
     }
 

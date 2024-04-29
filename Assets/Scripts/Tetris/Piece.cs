@@ -19,7 +19,6 @@ public class Piece : MonoBehaviour
     [SerializeField] float initialLockTime = 2f;
     [SerializeField] float fallTime = 1f;
     private float lockTime;
-    public Action OnMove;
 
     private void Start() {
         board = FindObjectOfType<Board>();
@@ -103,7 +102,6 @@ public class Piece : MonoBehaviour
             elapsedLockTime = 0f;
             piecePosition = newPosition;
         }
-        OnMove();
     }
 
     public bool isValidMove(Vector3Int dir, Board board) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
@@ -22,26 +23,22 @@ public class GhostPiece : MonoBehaviour
         this.activePiece = piece;
         this.piecePos = piece.piecePosition;
 
+        ghostCells = new Vector3Int[4];
+
         for(int i = 0; i < activePiece.tetrominoData.cells.Length; i++) {
             ghostCells[i] = piece.cells[i];
-
         }
-        HandleMove();
-        activePiece.OnMove += HandleMove;
     }
 
     private void Start() {
         tilemap = GetComponentInChildren<Tilemap>();
     }
-    private void HandleMove()
-    {
+    private void LateUpdate() {
         Clear();
         Copy(); 
         HardDrop();
         Set();
-
     }
-
     public void Clear() {
         for(int i = 0; i < ghostCells.Length; i++) {
             tilemap.SetTile(piecePos + ghostCells[i], null);
