@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System;
 
 public class Board : MonoBehaviour
 {
@@ -13,7 +14,6 @@ public class Board : MonoBehaviour
     public GhostPiece ghostPiece;
     [SerializeField] Vector3Int initialPos;
     [SerializeField] GameObject border;
-    public Vector2Int boardSize = new Vector2Int(10, 20);
     public Bounds tileBounds; 
     private int lineLimit;
     
@@ -60,6 +60,7 @@ public class Board : MonoBehaviour
         }
     }
     public void LockPiece(Piece piece) {
+        ghostPiece.Clear();
         Set(piece);
         CheckLines();
         SpawnPiece();

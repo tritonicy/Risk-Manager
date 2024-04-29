@@ -32,7 +32,7 @@ public class Piece : MonoBehaviour
         elapsedLockTime += Time.deltaTime;
 
         if(fallTime < elapsedFallTime) {
-            if(isValidMove(Vector3Int.down, board)) {
+            if(isValidMove(Vector3Int.down + this.piecePosition, this)) {
                 Move(Vector3Int.down, board);
                 elapsedFallTime = 0f;
 
@@ -98,16 +98,16 @@ public class Piece : MonoBehaviour
         newPosition.x += dir.x;
         newPosition.y += dir.y;
 
-        if(isValidMove(dir,board)) {
+        if(isValidMove(newPosition,this)) {
             elapsedLockTime = 0f;
             piecePosition = newPosition;
         }
     }
 
-    public bool isValidMove(Vector3Int dir, Board board) {
+    public bool isValidMove(Vector3Int position, Piece piece) {
 
-        for(int i = 0; i< cells.Length; i++) {
-            Vector3Int checkCell = cells[i] +  dir + piecePosition;
+        for(int i = 0; i< piece.cells.Length; i++) {
+            Vector3Int checkCell = piece.cells[i] + position;
 
             if(!board.tileBounds.Contains(checkCell)) {
                 return false;
@@ -121,7 +121,7 @@ public class Piece : MonoBehaviour
     }
     
     public void MoveAllWay(Board board) {
-        while(isValidMove(Vector3Int.down, board)) {
+        while(isValidMove(this.piecePosition + Vector3Int.down, this)) {
             Move(Vector3Int.down, board);
         }
         board.LockPiece(this);
@@ -189,7 +189,7 @@ public class Piece : MonoBehaviour
         int dirIndex = ApplyWallKick(rotationIndex, rotateDir);
         
         for(int i = 0; i < tetrominoData.wallKicks.GetLength(1); i++) {
-            if(isValidMove((Vector3Int) tetrominoData.wallKicks[dirIndex,i], board) ) {
+            if(isValidMove((Vector3Int) tetrominoData.wallKicks[dirIndex,i] + piecePosition, this) ) {
                 Move((Vector3Int) tetrominoData.wallKicks[dirIndex,i], board);
                 return true;
             }

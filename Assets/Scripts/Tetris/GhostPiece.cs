@@ -17,7 +17,6 @@ public class GhostPiece : MonoBehaviour
     public Tilemap tilemap{get; private set;}
 
 
-
     public void Initalize(Piece piece, Board board) {
         this.board = board;
         this.activePiece = piece;
@@ -32,6 +31,7 @@ public class GhostPiece : MonoBehaviour
 
     private void Start() {
         tilemap = GetComponentInChildren<Tilemap>();
+    
     }
     private void LateUpdate() {
         Clear();
@@ -49,16 +49,28 @@ public class GhostPiece : MonoBehaviour
         for (int i = 0; i <ghostCells.Length; i++) {
             ghostCells[i] = activePiece.cells[i];
         }
-    }
+       }
 
     public void HardDrop() {
-        int y = (int) activePiece.piecePosition.y;
+        Vector3Int currentPos = activePiece.piecePosition;
+        int y = (int) currentPos.y;
+        int bottom = (int) board.tileBounds.min.y - 2;
 
-        for(int row = y; row > board.tileBounds.min.y ; row--) {
-            if(activePiece.isValidMove(Vector3Int.down, board)) {
-                piecePos -= new Vector3Int(0,-1,0);
+
+        board.ClearBoard();
+
+        for(int row = y; row > bottom ; row--) {
+
+            currentPos.y = row;
+            if(activePiece.isValidMove(currentPos,activePiece)) {
+                piecePos = currentPos;
             }
+            else{
+                break;
+            }
+            
         }
+        board.Set(activePiece);
     }
 
     public void Set() {
