@@ -14,6 +14,12 @@ public class Piece : MonoBehaviour
     public Vector3Int[] cells{get; private set;}
     public TetrominoData tetrominoData{get; private set;}
     public int rotationIndex = 0;
+    private float elapsedFallTime = 0f;
+    private float elapsedLockTime = 0f;
+    [SerializeField] float initialLockTime = 2f;
+    [SerializeField] float fallTime = 1f;
+    private float lockTime;
+    public Action OnMove;
 
     private void Start() {
         board = FindObjectOfType<Board>();
@@ -21,78 +27,121 @@ public class Piece : MonoBehaviour
     public void Update() {
         board.ClearBoard();
 
-        if(Input.GetKeyDown(KeyCode.Q)) {
-            Rotate(-1);
-        }
-        if(Input.GetKeyDown(KeyCode.E)) {
-            Rotate(1);
-        }
-        if(Input.GetKeyDown(KeyCode.LeftArrow)){
+        RunMoveInputs();
 
-            Move(Vector3Int.left, board);
-        }
-        if(Input.GetKeyDown(KeyCode.RightArrow)){
+        elapsedFallTime += Time.deltaTime;
+        elapsedLockTime += Time.deltaTime;
 
-            Move(Vector3Int.right, board);
-        }
-        if(Input.GetKeyDown(KeyCode.DownArrow)){
+        if(fallTime < elapsedFallTime) {
+            if(isValidMove(Vector3Int.down, board)) {
+                Move(Vector3Int.down, board);
+                elapsedFallTime = 0f;
 
-            Move(Vector3Int.down, board);
+            }
+            else{
+                lockTime -= Time.deltaTime/1.33f;
+            }
         }
-        if(Input.GetKeyDown(KeyCode.Space)) {
+        
 
-            MoveAllWay(Vector3Int.down, board);
+        if(lockTime < elapsedLockTime) {
+            board.LockPiece(this);
+            elapsedLockTime = 0f;
         }
 
         board.Set(this);
+        
+
+    }
+
+    public void RunMoveInputs() {
+
+        if(Input.GetKeyDown(KeyCode.Q)) {
+            Rotate(-1);
+        }
+        else if(Input.GetKeyDown(KeyCode.E)) {
+            Rotate(1);
+        }
+        else if(Input.GetKeyDown(KeyCode.LeftArrow)){
+            Move(Vector3Int.left, board);
+        }
+        else if(Input.GetKeyDown(KeyCode.RightArrow)){
+
+            Move(Vector3Int.right, board);
+        }
+        else if(Input.GetKeyDown(KeyCode.DownArrow)){
+
+            Move(Vector3Int.down, board);
+        }
+        else if(Input.GetKeyDown(KeyCode.Space)) {
+            
+            MoveAllWay(board);
+        }
+
+        
     }
     public void Initalize(Board board, Vector3Int piecePosition, TetrominoData tetrominoData) {
         this.board = board;
         this.tetrominoData = tetrominoData;
         this.piecePosition = piecePosition;
+        this.lockTime = initialLockTime;
 
         cells = new Vector3Int[4];
 
         for(int i= 0; i< tetrominoData.cells.Length; i++) {
-            cells[i] = (Vector3Int) tetrominoData.cells[i] + piecePosition;
+            cells[i] = (Vector3Int) tetrominoData.cells[i];
         }
     }
 
     public void Move(Vector3Int dir, Board board) {
 
-        if(isValidMove(dir,board)) { 
-            for(int i = 0 ; i < cells.Length; i++) {
-                cells[i] += dir;
-                Debug.Log(cells[i]);
-            }
+        Vector3Int newPosition = this.piecePosition;
+        newPosition.x += dir.x;
+        newPosition.y += dir.y;
+
+        if(isValidMove(dir,board)) {
+            elapsedLockTime = 0f;
+            piecePosition = newPosition;
         }
+        OnMove();
     }
 
     public bool isValidMove(Vector3Int dir, Board board) {
-        Vector3Int[] checkCells = new Vector3Int[4];
 
-        for(int i = 0; i< checkCells.Length; i++) {
-            checkCells[i] = cells[i] + dir;
+        for(int i = 0; i< cells.Length; i++) {
+            Vector3Int checkCell = cells[i] +  dir + piecePosition;
 
-            if(!board.tileBounds.Contains(checkCells[i])) {
+            if(!board.tileBounds.Contains(checkCell)) {
                 return false;
             }
-            if(board.tilemap.GetTile(checkCells[i]) != null) {
+
+            if(board.tilemap.GetTile(checkCell) != null) {
                 return false;
             }
         }
         return true;
     }
     
-    public void MoveAllWay(Vector3Int dir, Board board) {
-        while(isValidMove(dir, board)) {
-            Move(dir, board);
+    public void MoveAllWay(Board board) {
+        while(isValidMove(Vector3Int.down, board)) {
+            Move(Vector3Int.down, board);
         }
+        board.LockPiece(this);
     }
 
     public void Rotate(int direction) {
-        int newDir = SetRotateDirection(rotationIndex,direction);
+        int oldDir = rotationIndex;
+        rotationIndex = Wrap(rotationIndex + direction, 0 ,4);
 
+        AppylRotation(direction);
+
+        if(!TestWallKick(oldDir,direction)) {
+            rotationIndex = oldDir;
+            AppylRotation(-direction);
+        }
+    }
+
+    public void AppylRotation(int direction) {
         int x,y;
         
         for(int i = 0; i < cells.Length; i++) {
@@ -105,13 +154,13 @@ public class Piece : MonoBehaviour
                 cell.x -= 0.5f;
                 cell.y -= 0.5f;
 
-                x = Mathf.CeilToInt(cell.x * this.tetrominoData.rotation[0] + cell.y * this.tetrominoData.rotation[1]);
-                y = Mathf.CeilToInt(cell.x * this.tetrominoData.rotation[2] + cell.y * this.tetrominoData.rotation[3]);
+                x = Mathf.CeilToInt((cell.x * this.tetrominoData.rotation[0] * direction) + (cell.y * this.tetrominoData.rotation[1] * direction));
+                y = Mathf.CeilToInt((cell.x * this.tetrominoData.rotation[2] * direction) + (cell.y * this.tetrominoData.rotation[3] * direction));
                 break;
 
                 default:
-                x = Mathf.RoundToInt(cell.x * this.tetrominoData.rotation[0] + cell.y * this.tetrominoData.rotation[1]);
-                y = Mathf.RoundToInt(cell.x * this.tetrominoData.rotation[2] + cell.y * this.tetrominoData.rotation[3]);
+                x = Mathf.RoundToInt((cell.x * this.tetrominoData.rotation[0] * direction )+ (cell.y * this.tetrominoData.rotation[1] * direction));
+                y = Mathf.RoundToInt((cell.x * this.tetrominoData.rotation[2] * direction )+ (cell.y * this.tetrominoData.rotation[3] * direction));
                 break;
                 
             }
@@ -120,16 +169,34 @@ public class Piece : MonoBehaviour
         }
     }
 
-    public int SetRotateDirection(int currentDir, int direction) {
-        if(currentDir + direction < 0) {
-            return 4;
-        }
-        else if(currentDir + direction > 3) {
-            return 0;
-        }
-        else { 
-            return currentDir + direction;
+    private int Wrap(int input, int min, int max)
+    {
+        if (input < min) {
+            return max - (min - input) % (max - min);
+        } else {
+            return min + (input - min) % (max - min);
         }
     }
-}
 
+    public int ApplyWallKick(int rotationIndex, int rotateDir) {
+        int dirIndex = rotationIndex * 2;
+
+        if(rotateDir < 0) {
+            dirIndex--;
+        }
+        return Wrap(dirIndex, 0, 8);
+    }
+
+    public bool TestWallKick(int rotationIndex, int rotateDir) {
+        int dirIndex = ApplyWallKick(rotationIndex, rotateDir);
+        
+        for(int i = 0; i < tetrominoData.wallKicks.GetLength(1); i++) {
+            if(isValidMove((Vector3Int) tetrominoData.wallKicks[dirIndex,i], board) ) {
+                Move((Vector3Int) tetrominoData.wallKicks[dirIndex,i], board);
+                return true;
+            }
+        }
+        return false;
+    }
+
+}

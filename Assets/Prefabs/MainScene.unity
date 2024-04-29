@@ -1783,6 +1783,7 @@ GameObject:
   - component: {fileID: 1804842826}
   - component: {fileID: 1804842829}
   - component: {fileID: 1804842828}
+  - component: {fileID: 1804842830}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -1830,6 +1831,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f123429c1c6fcdb40bd25118b5437983, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotationIndex: 0
+  initialLockTime: 2
+  fallTime: 1
 --- !u!114 &1804842829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1858,11 +1862,25 @@ MonoBehaviour:
   - tile: {fileID: 11400000, guid: 635b96cdce40de04199ade1aca8131a9, type: 2}
     tetromino: 6
   piece: {fileID: 0}
+  ghostPiece: {fileID: 0}
   initialPos: {x: -41, y: 8, z: 0}
   border: {fileID: 189148426}
+  boardSize: {x: 10, y: 20}
   tileBounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+--- !u!114 &1804842830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804842825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c537a72adf19c4eb43f6b92cb999f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1812877484
 GameObject:
   m_ObjectHideFlags: 0
