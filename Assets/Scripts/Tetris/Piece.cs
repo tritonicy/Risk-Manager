@@ -20,27 +20,28 @@ public class Piece : MonoBehaviour
     [SerializeField] float fallTime = 1f;
     private float lockTime;
 
-    private void Start() {
-        board = FindObjectOfType<Board>();
-    }
+
     public void Update() {
-        board.ClearBoard();
+        if(this.board != null) {
+            board.ClearBoard();
 
-        RunMoveInputs();
-
-        elapsedFallTime += Time.deltaTime;
-        elapsedLockTime += Time.deltaTime;
-
-        if(fallTime < elapsedFallTime) {
-            if(isValidMove(Vector3Int.down + this.piecePosition, this)) {
-                Move(Vector3Int.down, board);
-                elapsedFallTime = 0f;
-
+            if(StationInteract.isPlayingTetris) {
+                RunMoveInputs();
             }
-            else{
-                lockTime -= Time.deltaTime/1.33f;
+
+            elapsedFallTime += Time.deltaTime;
+            elapsedLockTime += Time.deltaTime;
+
+            if(fallTime < elapsedFallTime) {
+                if(isValidMove(Vector3Int.down + this.piecePosition, this)) {
+                    Move(Vector3Int.down, board);
+                    elapsedFallTime = 0f;
+
+                }
+                else{
+                    lockTime -= Time.deltaTime/1.33f;
+                }
             }
-        }
         
 
         if(lockTime < elapsedLockTime) {
@@ -50,7 +51,9 @@ public class Piece : MonoBehaviour
 
         board.Set(this);
         
-
+    
+        }
+        
     }
 
     public void RunMoveInputs() {

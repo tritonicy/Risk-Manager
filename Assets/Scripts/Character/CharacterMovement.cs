@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,6 +16,8 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float leftRoomGravity = 1f;
     private CameraManagement cameraManagement;
 
+
+
     private void Start() {
         rb = GetComponent<Rigidbody2D>();
         cameraManagement = FindObjectOfType<CameraManagement>();
@@ -25,24 +28,38 @@ public class CharacterMovement : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        if(cameraManagement.FindActiveCamera().transform.position.x <= -10f) {
-            return;
-        }
-        if (cameraManagement.FindActiveCamera().transform.position.x < 5f) {
-            rb.gravityScale = leftRoomGravity;
-            rb.velocity = new Vector2(moveDirection.x * walkSpeed, rb.velocity.y);
-            if (isTouchingFloor) {
-                rb.velocity = new Vector2(rb.velocity.x, moveDirection.y * jumpSpeed);
+        if (!StationInteract.isPlayingTetris)
+        {
+            if (cameraManagement.FindActiveCamera().transform.position.x <= -10f)
+            {
+                return;
+            }
+            if (cameraManagement.FindActiveCamera().transform.position.x < 5f)
+            {
+                rb.gravityScale = leftRoomGravity;
+                rb.velocity = new Vector2(moveDirection.x * walkSpeed, rb.velocity.y);
+                if (isTouchingFloor)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, moveDirection.y * jumpSpeed);
+                }
+            }
+            else
+            {
+                rb.gravityScale = 0f;
+                rb.velocity = new Vector2(moveDirection.x * walkSpeed, moveDirection.y * walkSpeed);
             }
         }
-        else {
-            rb.gravityScale = 0f;
-            rb.velocity = new Vector2(moveDirection.x * walkSpeed,moveDirection.y * walkSpeed);
-        } 
+
     }
 
     private void OnEnable() {
         playerInputSystem.Player.Enable();
+        StationInteract.OnPlayTetris += HandleCharacterMovement;
+    }
+
+    private void HandleCharacterMovement()
+    {
+        rb.velocity = new Vector2(0f,0f);
     }
 
     private void OnDisable() {

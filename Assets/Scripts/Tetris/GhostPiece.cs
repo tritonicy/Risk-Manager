@@ -34,10 +34,12 @@ public class GhostPiece : MonoBehaviour
     
     }
     private void LateUpdate() {
-        Clear();
-        Copy(); 
-        HardDrop();
-        Set();
+        if(activePiece != null) {
+            Clear();
+            Copy(); 
+            HardDrop();
+            Set();
+        }
     }
     public void Clear() {
         for(int i = 0; i < ghostCells.Length; i++) {

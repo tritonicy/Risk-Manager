@@ -17,6 +17,9 @@ public class Board : MonoBehaviour
     public Bounds tileBounds; 
     private int lineLimit;
     
+    private void OnEnable() {
+        StationInteract.OnPlayTetris += HandleStart;
+    }
     private void Awake() {
         for(int i=0; i < tetrominoData.Length; i++) {
             tetrominoData[i].Initalize();
@@ -31,12 +34,11 @@ public class Board : MonoBehaviour
         tileBounds = new Bounds(border.transform.position, border.transform.localScale);
         tileBounds.max += new Vector3Int(-1,0,0);
         lineLimit = (int) tileBounds.size.x + 1;
+    }
 
+    public void HandleStart() {
         SpawnPiece();
-        Debug.Log(tileBounds.min);
-        Debug.Log(tileBounds.max);
-
-
+        StationInteract.OnPlayTetris -= HandleStart;
     }
 
     public void SpawnPiece() {
@@ -55,7 +57,7 @@ public class Board : MonoBehaviour
     }
 
     public void ClearBoard() {
-        for(int i = 0; i< piece.cells.Length; i++) {
+        for(int i = 0; i < piece.cells.Length; i++) {
             tilemap.SetTile(piece.cells[i] + piece.piecePosition, null);
         }
     }

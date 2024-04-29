@@ -2043,7 +2043,6 @@ MonoBehaviour:
   ghostPiece: {fileID: 0}
   initialPos: {x: -41, y: 8, z: 0}
   border: {fileID: 189148426}
-  boardSize: {x: 10, y: 20}
   tileBounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
