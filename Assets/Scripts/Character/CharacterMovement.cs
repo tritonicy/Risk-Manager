@@ -10,11 +10,9 @@ public class CharacterMovement : MonoBehaviour
     public PlayerInputSystem playerInputSystem;
     private Rigidbody2D rb;
     [SerializeField] float walkSpeed = 2f;
-    [SerializeField] float jumpSpeed = 2f;
     private Vector2 moveDirection;
-    private bool isTouchingFloor = false;
-    [SerializeField] float leftRoomGravity = 1f;
     private CameraManagement cameraManagement;
+    [SerializeField] Animator animator;
 
 
 
@@ -36,17 +34,19 @@ public class CharacterMovement : MonoBehaviour
             }
             if (cameraManagement.FindActiveCamera().transform.position.x < 5f)
             {
-                rb.gravityScale = leftRoomGravity;
                 rb.velocity = new Vector2(moveDirection.x * walkSpeed, rb.velocity.y);
-                if (isTouchingFloor)
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, moveDirection.y * jumpSpeed);
+                if(rb.velocity.x != 0)  {
+                    animator.SetBool("isRunning", true);
                 }
-            }
-            else
-            {
-                rb.gravityScale = 0f;
-                rb.velocity = new Vector2(moveDirection.x * walkSpeed, moveDirection.y * walkSpeed);
+                else{
+                    animator.SetBool("isRunning", false);
+                }
+                if(rb.velocity.x < 0 && this.transform.localScale.x > 0) {
+                    FlipSprite();
+                }
+                else if(rb.velocity.x > 0 && this.transform.localScale.x < 0) {
+                    FlipSprite();
+                }
             }
         }
 
@@ -69,17 +69,10 @@ public class CharacterMovement : MonoBehaviour
     public void OnMove(InputValue value) {
         moveDirection = value.Get<Vector2>();
     }
-
-    private void OnCollisionStay2D(Collision2D other) {
-        if (other.gameObject.tag == "floor") {
-            isTouchingFloor = true;
-        }
-    }
-    
-    private void OnCollisionExit2D(Collision2D other) {
-        if (other.gameObject.tag == "floor") {
-            isTouchingFloor = false;
-        }
+    public void FlipSprite() {
+        Vector3 localScale = this.transform.localScale;
+        localScale.x = - localScale.x;
+        this.transform.localScale = localScale;
     }
 
 }
